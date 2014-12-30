@@ -1,5 +1,5 @@
 require 'minitest/autorun'
-require_relative 'hash'
+require_relative 'ast'
 
 class ASTTest < MiniTest::Unit::TestCase
 

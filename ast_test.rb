@@ -4,11 +4,24 @@ require_relative 'ast'
 class ASTTest < MiniTest::Unit::TestCase
 
   def setup
-    # initialize an ast
+    @default_ast = ASTNode.new(:+, ASTNode.new(1), ASTNode.new(2))
+    @zero_branches_ast = ASTNode.new(:+)
+    @one_branch_ast = ASTNode.new(:+, ASTNode.new(1))
   end
 
-  def test_to_s
-    # print out the ast
+  def test_ast_initializes_with_correct_values
+    assert_equal :+, @default_ast.value
+    assert_equal 1, @default_ast.left.value
+    assert_equal 2, @default_ast.right.value
   end
 
+  def test_ast_initializes_with_one_branch
+    assert_equal 1, @one_branch_ast.left.value
+    assert_equal nil, @one_branch_ast.right
+  end
+
+  def test_ast_initialized_with_zero_branches
+    assert_equal nil, @zero_branches_ast.left
+    assert_equal nil, @zero_branches_ast.right
+  end
 end

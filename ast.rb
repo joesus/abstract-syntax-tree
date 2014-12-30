@@ -14,7 +14,7 @@ class ASTNode
   end
 
   def leaf?
-    # implement leaf
+    self.left.nil? && self.right.nil?
   end
 
 end

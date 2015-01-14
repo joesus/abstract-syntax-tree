@@ -7,9 +7,9 @@ class ASTTest < MiniTest::Unit::TestCase
     @default_ast = ASTNode.new(:+, ASTNode.new(1), ASTNode.new(2))
     @zero_branches_ast = ASTNode.new(:+)
     @one_branch_ast = ASTNode.new(:+, ASTNode.new(1))
-    @two_levels_left = ASTNode.new(:+, ASTNode.new(:+, ASTNode.new(1), ASTNode.new(2)), ASTNode.new(3))
-    @two_levels_right = ASTNode.new(:+, ASTNode.new(1), ASTNode.new(:+, ASTNode.new(2), ASTNode.new(3)))
-    @two_levels_both = ASTNode.new(:+, ASTNode.new(:+, ASTNode.new(1), ASTNode.new(2)), ASTNode.new(:+, ASTNode.new(3), ASTNode.new(4)))
+    @two_levels_left = ASTNode.new(:+, ASTNode.new(:+, ASTNode.new(1, nil, nil, :+), ASTNode.new(2, nil, nil, :+), :+), ASTNode.new(3, nil, nil, :+))
+    @two_levels_right = ASTNode.new(:+, ASTNode.new(1), ASTNode.new(:+, ASTNode.new(2), ASTNode.new(3), :+))
+    @two_levels_both = ASTNode.new(:+, ASTNode.new(:+, ASTNode.new(1), ASTNode.new(2), :+), ASTNode.new(:+, ASTNode.new(3), ASTNode.new(4), :+))
   end
 
   def test_ast_initializes_with_correct_values

@@ -1,27 +1,30 @@
 require 'pry-nav'
 
 class ASTNode
-  attr_accessor :value, :left, :right
+  attr_accessor :value, :left, :right, :parent
 
-  def initialize(value, left=nil, right=nil)
+  def initialize(value, left=nil, right=nil, parent=nil)
     @value = value
     @left = left
     @right = right
+    @parent = parent
   end
 
-  def to_s
+  def to_s(string="")
     string ||= ""
-    if self.left.leaf?
-      string << "#{self.left.value}"
+    if self.parent.to_s =~ /[-+*\/]/ && self.value =~ /[-+*\/]/
+      # string << "("
+      string << "("
+      self.left.to_s(string)
+      string << " #{self.value} "
+      self.right.to_s(string)
+      string << ")"
     else
-      string << "(#{self.left.to_s})"
+      self.left.to_s(string) unless self.leaf?
+      self.value.to_s =~ /[-+*\/]/ ? string << " #{self.value} " : string << "#{self.value}"
+      self.right.to_s(string) unless self.leaf?
     end
-    string << " #{self.value} "
-    if self.right.leaf?
-      string << "#{self.right.value}"
-    else
-      string << "(#{self.right.to_s})"
-    end
+    string
   end
 
   def leaf?

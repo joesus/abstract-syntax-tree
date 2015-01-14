@@ -12,7 +12,7 @@ class ASTNode
 
   def to_s(string="")
     string ||= ""
-    if self.parent.to_s =~ /[-+*\/]/ && self.value =~ /[-+*\/]/
+    if self.parent =~ /[-+*\/]/ && self.value =~ /[-+*\/]/
       # string << "("
       string << "("
       self.left.to_s(string)
@@ -21,7 +21,7 @@ class ASTNode
       string << ")"
     else
       self.left.to_s(string) unless self.leaf?
-      self.value.to_s =~ /[-+*\/]/ ? string << " #{self.value} " : string << "#{self.value}"
+      self.value =~ /[-+*\/]/ ? string << " #{self.value} " : string << "#{self.value}"
       self.right.to_s(string) unless self.leaf?
     end
     string

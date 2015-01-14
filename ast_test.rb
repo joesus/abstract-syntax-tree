@@ -4,12 +4,25 @@ require_relative 'ast'
 class ASTTest < MiniTest::Unit::TestCase
 
   def setup
-    @default_ast = ASTNode.new(:+, ASTNode.new(1), ASTNode.new(2))
-    @zero_branches_ast = ASTNode.new(:+)
-    @one_branch_ast = ASTNode.new(:+, ASTNode.new(1))
-    @two_levels_left = ASTNode.new(:+, ASTNode.new(:+, ASTNode.new(1, nil, nil, :+), ASTNode.new(2, nil, nil, :+), :+), ASTNode.new(3, nil, nil, :+))
-    @two_levels_right = ASTNode.new(:+, ASTNode.new(1), ASTNode.new(:+, ASTNode.new(2), ASTNode.new(3), :+))
-    @two_levels_both = ASTNode.new(:+, ASTNode.new(:+, ASTNode.new(1), ASTNode.new(2), :+), ASTNode.new(:+, ASTNode.new(3), ASTNode.new(4), :+))
+    @default_ast = ASTNode.new(value: :+,
+                               left: ASTNode.new(value: 1),
+                               right: ASTNode.new(value: 2),
+                               parent: true)
+    @zero_branches_ast = ASTNode.new(value: :+)
+    @one_branch_ast = ASTNode.new(value: :+,
+                                  left: ASTNode.new(value: 1))
+    @two_levels_left = ASTNode.new(value: :+,
+                                   left: ASTNode.new(value: :+, left: ASTNode.new(value: 1), right: ASTNode.new(value: 2)),
+                                   right: ASTNode.new(value: 3),
+                                   parent: true)
+    @two_levels_right = ASTNode.new(value: :+,
+                                    left: ASTNode.new(value: 1),
+                                    right: ASTNode.new(value: :+, left: ASTNode.new(value: 2), right: ASTNode.new(value: 3)),
+                                    parent: true)
+    @two_levels_both = ASTNode.new(value: :+,
+                                   left: ASTNode.new(value: :+, left: ASTNode.new(value: 1), right: ASTNode.new(value: 2)),
+                                   right: ASTNode.new(value: :+, left: ASTNode.new(value: 3), right: ASTNode.new(value: 4)),
+                                   parent: true)
   end
 
   def test_ast_initializes_with_correct_values

@@ -3,16 +3,16 @@ require 'pry-nav'
 class ASTNode
   attr_accessor :value, :left, :right, :parent
 
-  def initialize(value, left=nil, right=nil, parent=nil)
-    @value = value
-    @left = left
-    @right = right
-    @parent = parent
+  def initialize(args={})
+    @value = args[:value]
+    @left =  args[:left]
+    @right = args[:right]
+    @parent = args[:parent]
   end
 
   def to_s(string="")
     string ||= ""
-    if self.parent =~ /[-+*\/]/ && self.value =~ /[-+*\/]/
+    if !self.parent && self.value =~ /[-+*\/]/
       # string << "("
       string << "("
       self.left.to_s(string)

@@ -92,7 +92,7 @@ class ASTNode
                                                     operator_stack.last.value == '(' ||
                                                     OP_PRIORITY[formula_item] > OP_PRIORITY[operator_stack.last.value])
 
-        operator_stack << ASTNode.new(value: formula_item)
+        operator_stack << ASTNode.new(value: formula_item.to_sym)
       # IF ITEM IS AN OPEN PARENS
       elsif formula_item == '('
         operator_stack << ASTNode.new(value: formula_item)
@@ -107,7 +107,8 @@ class ASTNode
         operator_stack.pop
       # IF ITEM IS A NON-OPERATOR
       else
-        node_stack << ASTNode.new(value: formula_item) unless formula_item.nil?
+        formula_item = formula_item.to_i if formula_item.match(/[0-9]+/)
+        node_stack << ASTNode.new(value: formula_item) unless formula_item == ""
       end
     end
 

@@ -4,51 +4,18 @@ require_relative 'ast'
 class ASTTest < MiniTest::Unit::TestCase
 
   def setup
-    @one_node = ASTNode.new(value: 1)
-    @two_node = ASTNode.new(value: 2)
-    @three_node = ASTNode.new(value: 3)
-    @plus_node = ASTNode.new(value: :+)
+    @one_node = ASTNode.parse('1')
+    @two_node = ASTNode.parse('2')
+    @three_node = ASTNode.parse('3')
+    @plus_node = ASTNode.parse("+")
+    @default_ast = ASTNode.parse('1 + 2')
 
-
-    @default_ast = ASTNode.new(value: :+,
-                               left: @one_node,
-                               right: @two_node)
     @zero_branches_ast = @plus_node
-
-    @one_branch_ast = ASTNode.new(value: :+,
-                                  left: @one_node)
-    @one_branch_ast.left.parent = @one_branch_ast
-
-    @two_levels_left = ASTNode.new(value: :+,
-                                   left: ASTNode.new(value: :+,
-                                                     left: ASTNode.new(value: 1),
-                                                     right: ASTNode.new(value: 2)),
-                                   right: ASTNode.new(value: 3))
-
-    @two_levels_right = ASTNode.new(value: :+, left: ASTNode.new(value: 1), right: ASTNode.new(value: :+, left: ASTNode.new(value: 2), right: ASTNode.new(value: 3)))
-    @two_levels_both = ASTNode.new(value: :+, left: ASTNode.new(value: :+, left: ASTNode.new(value: 1), right: ASTNode.new(value: 2)), right: ASTNode.new(value: :+, left: ASTNode.new(value: 3), right: ASTNode.new(value: 4)))
-    @three_levels = ASTNode.new(value: :+,
-                                left: ASTNode.new(value: :+,
-                                                  left: ASTNode.new(value: 1),
-                                                  right: ASTNode.new(value: 2)
-                                ),
-                                right: ASTNode.new(value: :+,
-                                                   left: ASTNode.new(value: 3),
-                                                   right: ASTNode.new(value: :+,
-                                                                      left: ASTNode.new(value: 4),
-                                                                      right: ASTNode.new(value: 5))
-                                ))
-    @tree = ASTNode.new(value: :+,
-                                left: ASTNode.new(value: :+,
-                                                  left: ASTNode.new(value: 1),
-                                                  right: ASTNode.new(value: 2)
-                                ),
-                                right: ASTNode.new(value: :+,
-                                                   left: ASTNode.new(value: 3),
-                                                   right: ASTNode.new(value: :+,
-                                                                      left: ASTNode.new(value: 4),
-                                                                      right: ASTNode.new(value: 5))
-                                ))
+    @one_branch_ast = ASTNode.new(value: :+, left: @one_node)
+    @two_levels_left = ASTNode.parse('(1 + 2) + 3')
+    @two_levels_right = ASTNode.parse('1 + (2 + 3)')
+    @two_levels_both = ASTNode.parse('(1 + 2) + (3 + 4)')
+    @three_levels = ASTNode.parse('(1 + 2) + (3 + (4 + 5))')
   end
 
   def test_ast_initializes_with_correct_values
@@ -63,6 +30,7 @@ class ASTTest < MiniTest::Unit::TestCase
   end
 
   def test_ast_initialized_with_zero_branches
+    assert_equal :+, @zero_branches_ast.value
     assert_equal nil, @zero_branches_ast.left
     assert_equal nil, @zero_branches_ast.right
   end
@@ -95,30 +63,34 @@ class ASTTest < MiniTest::Unit::TestCase
 
   def test_moving_branches
     # find the nodes
-    five = @tree.find_by_value(5)
-    two = @tree.find_by_value(2)
+    tree = ASTNode.parse('(1 + 2) + (3 + (4 + 5))')
+    five = tree.find_by_value(5)
+    two = tree.find_by_value(2)
     # store their parents
-    temp5parent = @tree.find_by_value(5).parent.parent
+    temp5parent = tree.find_by_value(5).parent.parent
     temp2parent = two.parent
     # swap the children of those parents
     temp5parent.right = two
     temp2parent.right = five.parent
 
-    assert_equal "(1 + (4 + 5)) + (3 + 2)", @tree.to_s
+    assert_equal "(1 + (4 + 5)) + (3 + 2)", tree.to_s
   end
 
   def test_parse_one_level
     one_level = ASTNode.parse("1 + 2")
+    assert_equal @default_ast.to_s, "1 + 2"
     assert_equal one_level.to_s, @default_ast.to_s
   end
 
   def test_parse_two_levels
     two_levels_left = ASTNode.parse("(1 + 2) + 3")
+    assert_equal @two_levels_left.to_s, "(1 + 2) + 3"
     assert_equal @two_levels_left.to_s, two_levels_left.to_s
   end
 
   def test_parse_three_levels
     three_levels = ASTNode.parse("(1 + 2) + (3 + (4 + 5))")
-    assert_equal three_levels.to_s, @tree.to_s
+    assert_equal @three_levels.to_s, "(1 + 2) + (3 + (4 + 5))"
+    assert_equal @three_levels.to_s, three_levels.to_s
   end
 end

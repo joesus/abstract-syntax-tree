@@ -118,7 +118,6 @@ class ASTTest < MiniTest::Unit::TestCase
   end
 
   def test_parse_three_levels
-    binding.pry
     three_levels = ASTNode.parse("(1 + 2) + (3 + (4 + 5))")
     assert_equal three_levels.to_s, @tree.to_s
   end

@@ -106,4 +106,20 @@ class ASTTest < MiniTest::Unit::TestCase
 
     assert_equal "(1 + (4 + 5)) + (3 + 2)", @tree.to_s
   end
+
+  def test_parse_one_level
+    one_level = ASTNode.parse("1 + 2")
+    assert_equal one_level.to_s, @default_ast.to_s
+  end
+
+  def test_parse_two_levels
+    two_levels_left = ASTNode.parse("(1 + 2) + 3")
+    assert_equal @two_levels_left.to_s, two_levels_left.to_s
+  end
+
+  def test_parse_three_levels
+    binding.pry
+    three_levels = ASTNode.parse("(1 + 2) + (3 + (4 + 5))")
+    assert_equal three_levels.to_s, @tree.to_s
+  end
 end

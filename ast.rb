@@ -64,4 +64,66 @@ class ASTNode
     self.value =~ /[-+*\/]/
   end
 
+  OP_PRIORITY = { "+" => 0, "-" => 0, "*" => 1, "/" => 1, "(" => 2, ")" => 2}
+  OPERATORS = ['+', '-', '/', '*']
+  OP_FUNCTION = {
+    "+" => lambda {|x, y| x + y},
+    "-" => lambda {|x, y| x - y},
+    "*" => lambda {|x, y| x * y},
+    "/" => lambda {|x, y| x / y}
+  }
+
+  def self.parse(formula)
+    operator_stack, node_stack = [],[]
+
+    formula_array = formula.gsub(/([\+\-\/\*])/,' \1 ')
+    .gsub(/([\(\)])/,' \1 ')
+    .split(/\s+/)
+
+    formula_array.each do |formula_item|
+
+      # IF ITEM IS AN OPERATOR
+      if OPERATORS.include? formula_item
+        # Checks to see if the new operator has a higher priority than operator previously
+        # added to the operator_stack
+        # If so, the operator is given the last two items on the node stack as it's child nodes
+        # Otherwise, the new operator is added to the stack for later evaluation.
+        stack_it(operator_stack, node_stack) until (operator_stack.empty? ||
+                                                    operator_stack.last.value == '(' ||
+                                                    OP_PRIORITY[formula_item] > OP_PRIORITY[operator_stack.last.value])
+
+        operator_stack << ASTNode.new(value: formula_item)
+      # IF ITEM IS AN OPEN PARENS
+      elsif formula_item == '('
+        operator_stack << ASTNode.new(value: formula_item)
+      # IF ITEM IS A CLOSED PARENS
+      elsif formula_item == ')'
+        # Addresses each item on the operator stack via the stack_it method
+        # until the last item on the operator stack is the corresponding open parens
+        while operator_stack.last.value != '(' && !operator_stack.empty?
+          stack_it(operator_stack, node_stack)
+        end
+        # Removes the corresponding open parens so that the following operator node can be accessed
+        operator_stack.pop
+      # IF ITEM IS A NON-OPERATOR
+      else
+        node_stack << ASTNode.new(value: formula_item) unless formula_item.nil?
+      end
+    end
+
+    # deals with the final operator on the stack
+    until operator_stack.empty?
+      stack_it(operator_stack, node_stack)
+    end
+
+    node_stack.last
+  end
+
+  def self.stack_it(operator_stack, node_stack)
+    temp = operator_stack.pop
+    temp.right = node_stack.pop
+    temp.left = node_stack.pop
+    node_stack << temp
+  end
+
 end

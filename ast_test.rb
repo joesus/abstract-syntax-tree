@@ -16,6 +16,11 @@ class ASTTest < MiniTest::Unit::TestCase
     @two_levels_right = ASTNode.parse('1 + (2 + 3)')
     @two_levels_both = ASTNode.parse('(1 + 2) + (3 + 4)')
     @three_levels = ASTNode.parse('(1 + 2) + (3 + (4 + 5))')
+
+    @two_levels_multi_left = ASTNode.parse('(1 + 2) * 3')
+    @three_levels_complex = ASTNode.parse('(1 + (2 * 3)) - (8 / (2 + 2))')
+
+    @wide_tree = ASTNode.parse('(1 * 2) + (4 + 5) * (6 + (7 - 8))')
   end
 
   def test_ast_initializes_with_correct_values
@@ -84,13 +89,35 @@ class ASTTest < MiniTest::Unit::TestCase
 
   def test_parse_two_levels
     two_levels_left = ASTNode.parse("(1 + 2) + 3")
+    two_levels_multi_left = ASTNode.parse("(1 + 2) * 3")
     assert_equal @two_levels_left.to_s, "(1 + 2) + 3"
     assert_equal @two_levels_left.to_s, two_levels_left.to_s
+    assert_equal two_levels_multi_left.to_s, "(1 + 2) * 3"
   end
 
   def test_parse_three_levels
     three_levels = ASTNode.parse("(1 + 2) + (3 + (4 + 5))")
-    assert_equal @three_levels.to_s, "(1 + 2) + (3 + (4 + 5))"
+    assert_equal "(1 + 2) + (3 + (4 + 5))", @three_levels.to_s
     assert_equal @three_levels.to_s, three_levels.to_s
+    assert_equal "(1 + (2 * 3)) - (8 / (2 + 2))", @three_levels_complex.to_s
+  end
+
+  def test_parse_wide_tree
+    assert_equal '(1 * 2) + ((4 + 5) * (6 + (7 - 8)))', @wide_tree.to_s
+  end
+
+  def test_execute_one_level
+    assert_equal 3, @default_ast.execute
+  end
+
+  def test_execute_two_levels
+    assert_equal 6, @two_levels_left.execute
+    assert_equal 6, @two_levels_right.execute
+    assert_equal 9, @two_levels_multi_left.execute
+  end
+
+  def test_execute_three_levels
+    assert_equal 15, @three_levels.execute
+    assert_equal 5, @three_levels_complex.execute
   end
 end

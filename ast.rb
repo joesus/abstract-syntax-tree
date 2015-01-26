@@ -23,9 +23,9 @@ class ASTNode
   def to_s
     string = ''
     string << '(' if add_parens?
-    string << self.left.to_s+' ' if !self.left.nil?
+    string << self.left.to_s+' ' unless self.left.nil?
     string << self.value.to_s
-    string << ' '+self.right.to_s if !self.right.nil?
+    string << ' '+self.right.to_s unless self.right.nil?
     string << ')' if add_parens?
     string
   end
@@ -54,6 +54,20 @@ class ASTNode
     target
   end
 
+  def execute
+    if OPERATORS.include?(self.value.to_s)
+      if !self.left.nil? && OPERATORS.include?(self.left.value)
+        left = self.left.execute
+      end
+
+      if !self.right.nil? && OPERATORS.include?(self.right.value)
+        right = self.right.execute
+      end
+
+      OP_FUNCTION[self.value].call((left || self.left.value), (right || self.right.value))
+    end
+  end
+
   protected
 
   def add_parens?
@@ -64,13 +78,13 @@ class ASTNode
     self.value =~ /[-+*\/]/
   end
 
-  OP_PRIORITY = { "+" => 0, "-" => 0, "*" => 1, "/" => 1, "(" => 2, ")" => 2}
-  OPERATORS = ['+', '-', '/', '*']
+  OP_PRIORITY = { :+ => 0, :- => 0, :* => 1, :/ => 1, "(" => 2, ")" => 2}
+  OPERATORS = ['+', '-', '/', '*', :+, :-, :/, :*]
   OP_FUNCTION = {
-    "+" => lambda {|x, y| x + y},
-    "-" => lambda {|x, y| x - y},
-    "*" => lambda {|x, y| x * y},
-    "/" => lambda {|x, y| x / y}
+    :+ => lambda {|x, y| x + y},
+    :- => lambda {|x, y| x - y},
+    :* => lambda {|x, y| x * y},
+    :/ => lambda {|x, y| x / y}
   }
 
   def self.parse(formula)
@@ -90,7 +104,7 @@ class ASTNode
         # Otherwise, the new operator is added to the stack for later evaluation.
         stack_it(operator_stack, node_stack) until (operator_stack.empty? ||
                                                     operator_stack.last.value == '(' ||
-                                                    OP_PRIORITY[formula_item] > OP_PRIORITY[operator_stack.last.value])
+                                                    OP_PRIORITY[formula_item.to_sym] > OP_PRIORITY[operator_stack.last.value.to_sym])
 
         operator_stack << ASTNode.new(value: formula_item.to_sym)
       # IF ITEM IS AN OPEN PARENS

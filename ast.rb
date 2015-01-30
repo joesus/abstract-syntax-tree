@@ -23,9 +23,9 @@ class ASTNode
   def to_s
     string = ''
     string << '(' if add_parens?
-    string << self.left.to_s+' ' unless self.left.nil?
+    string << self.left.to_s + ' ' unless self.left.nil?
     string << self.value.to_s
-    string << ' '+self.right.to_s unless self.right.nil?
+    string << ' ' + self.right.to_s unless self.right.nil?
     string << ')' if add_parens?
     string
   end
@@ -55,7 +55,13 @@ class ASTNode
   end
 
   def execute
-    self.operator? ? OP_FUNCTION[self.value].call(self.left.execute, self.right.execute) : self.value
+    if self.operator?
+      OP_FUNCTION[self.value].call(
+        (self.left.execute rescue nil),
+        (self.right.execute rescue nil))
+    else
+      self.value
+    end
   end
 
   protected

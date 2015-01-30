@@ -55,17 +55,7 @@ class ASTNode
   end
 
   def execute
-    if OPERATORS.include?(self.value.to_s)
-      if !self.left.nil? && OPERATORS.include?(self.left.value)
-        left = self.left.execute
-      end
-
-      if !self.right.nil? && OPERATORS.include?(self.right.value)
-        right = self.right.execute
-      end
-
-      OP_FUNCTION[self.value].call((left || self.left.value), (right || self.right.value))
-    end
+    self.operator? ? OP_FUNCTION[self.value].call(self.left.execute, self.right.execute) : self.value
   end
 
   protected
